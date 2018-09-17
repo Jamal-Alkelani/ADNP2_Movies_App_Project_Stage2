@@ -12,14 +12,14 @@ import java.util.Scanner;
 
 public class NetworkHandler {
     private final String SEARCH_MOVIES_URL = "https://api.themoviedb.org/3/search/movie";
-    private final String DISCOVER_MOVIES_URL = "https://api.themoviedb.org/3/discover/movie";
+    private final String POPULAR_MOVIES_URL = "https://api.themoviedb.org/3/movie/popular";
+    private final String TOP_RATED_MOVIES_URL = "https://api.themoviedb.org/3/movie/top_rated";
     private final String REVIEWS_MOVIES_URL = "https://api.themoviedb.org/3/movie/";
     private final String TRAILER_MOVIES_URL = "https://api.themoviedb.org/3/movie/";
     private final String QUERY_PARAM = "query";
     private final String API_KEY_PARAM = "api_key";
     //TODO insert your api_key over here
     private final String KEY = "9c7a1417f53de49f373c60caa87b68e8";
-    private final String SORT_BY_PARAM = "sort_by";
     public final static String SORT_BY_POPULARITY = "popularity";
     public final static String SORT_BY_HIGHEST_RATED = "vote_average";
     public static String SORTBY = SORT_BY_POPULARITY;
@@ -27,16 +27,14 @@ public class NetworkHandler {
     public URL buildURL(String search, String sortBY) {
         Uri builtUri;
         if (search.isEmpty()) {
-            builtUri = Uri.parse(DISCOVER_MOVIES_URL).buildUpon()
-                    .appendQueryParameter(QUERY_PARAM, search)
+            SORTBY=(SORTBY==SORT_BY_POPULARITY? POPULAR_MOVIES_URL:TOP_RATED_MOVIES_URL);
+            builtUri = Uri.parse(SORTBY).buildUpon()
                     .appendQueryParameter(API_KEY_PARAM, KEY)
-                    .appendQueryParameter(SORT_BY_PARAM, SORTBY + ".desc")
                     .build();
         } else {
             builtUri = Uri.parse(SEARCH_MOVIES_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, search)
                     .appendQueryParameter(API_KEY_PARAM, KEY)
-                    .appendQueryParameter(SORT_BY_PARAM, SORTBY + ".desc")
                     .build();
 
         }

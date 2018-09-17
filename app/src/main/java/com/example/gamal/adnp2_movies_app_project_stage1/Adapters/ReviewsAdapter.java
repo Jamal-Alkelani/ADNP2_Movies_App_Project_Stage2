@@ -30,7 +30,13 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.MovieRev
     @Override
     public void onBindViewHolder(@NonNull ReviewsAdapter.MovieReviewAdapterViewHolder holder, int i) {
         holder.review.setText(mReviewsData.get(i).getAuthor());
-        holder.author.setText(mReviewsData.get(i).getContent().toString().substring(0, 60));
+        String review;
+        if(mReviewsData.get(i).getContent().toString().length()>=50){
+            review=mReviewsData.get(i).getContent().toString().substring(0, 50)+"...";
+        }else{
+            review=mReviewsData.get(i).getContent().toString()+"...";
+        }
+        holder.author.setText(review);
         holder.readMore.setText("Read More");
     }
 

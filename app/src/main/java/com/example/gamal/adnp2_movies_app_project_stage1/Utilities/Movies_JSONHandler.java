@@ -45,22 +45,29 @@ public class Movies_JSONHandler {
         return movies;
     }
 
-    public String getMovieURL() {
+    public Pair<String,String>[] getMovieURL() {
         String movieURL = "";
+        String movieName = "";
+        Pair<String,String> urls[]=null;
         try {
             JSONObject jsonObject = new JSONObject(json);
             JSONArray results = jsonObject.getJSONArray("results");
+            urls=new Pair[results.length()];
             if (results != null) {
-                JSONObject movieObj = results.getJSONObject(0);
-                movieURL = movieObj.get("key").toString();
+                for (int i=0;i<results.length();i++){
+                    JSONObject movieObj = results.getJSONObject(i);
+                    movieURL = "https://www.youtube.com/watch?v="+movieObj.get("key").toString();
+                    movieName = movieObj.get("name").toString();
+                    urls[i]=new Pair<>(movieURL,movieName);
+                }
+
             } else {
                 Toast.makeText(null, "No Trailers Found", Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String youtubeURL = "https://www.youtube.com/watch?v=" + movieURL;
-        return youtubeURL;
+        return urls;
     }
 
     public List<Review> getMovieReviews() {

@@ -12,6 +12,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="80dp"
         android:layout_marginTop="?attr/actionBarSize">
 
         <TextView
@@ -64,13 +65,12 @@
             android:layout_width="1dp"
             android:layout_height="0dp"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="277dp"
-            android:layout_marginRight="277dp"
+            android:layout_marginLeft="72dp"
+            android:layout_marginStart="72dp"
             android:layout_marginTop="8dp"
             android:background="@color/DarkGray"
             app:layout_constraintBottom_toTopOf="@+id/view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ratingBar_Detail"
+            app:layout_constraintStart_toEndOf="@+id/voteAvg"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
@@ -233,6 +233,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="28dp"
+            android:background="#be424242"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_action_heart_holo_dark" />
@@ -248,12 +249,10 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
             app:cardElevation="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout"
-            app:layout_constraintVertical_bias="1.0">
+            app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
         </android.support.v7.widget.RecyclerView>
     </android.support.constraint.ConstraintLayout>

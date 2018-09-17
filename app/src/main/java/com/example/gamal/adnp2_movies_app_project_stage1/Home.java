@@ -21,6 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.ActionMenuItemView;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Slide;
@@ -44,6 +45,7 @@ import com.example.gamal.adnp2_movies_app_project_stage1.Models.Movie;
 import com.example.gamal.adnp2_movies_app_project_stage1.Utilities.Movies_JSONHandler;
 import com.example.gamal.adnp2_movies_app_project_stage1.Utilities.NetworkHandler;
 import com.example.gamal.adnp2_movies_app_project_stage1.database.AppDatabase;
+import com.example.gamal.adnp2_movies_app_project_stage1.database.AppExecutors;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;
@@ -60,7 +62,7 @@ public class Home extends AppCompatActivity implements MovieAdapter.OnItemClickL
     public static Context context;
     MovieAdapter movieAdapter;
     SkeletonScreen skeletonScreen;
-
+    boolean showFavList=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,8 +81,7 @@ public class Home extends AppCompatActivity implements MovieAdapter.OnItemClickL
         stars.getDrawable(2).setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_ATOP);
 
         rv = findViewById(R.id.movies_recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        GridLayoutManager layoutManager = new GridLayoutManager(this,1,GridLayoutManager.HORIZONTAL,false);
         rv.setLayoutManager(layoutManager);
         rv.setHasFixedSize(true);
 
@@ -102,7 +103,6 @@ public class Home extends AppCompatActivity implements MovieAdapter.OnItemClickL
         else
             connected = false;
         if(connected) {
-            Log.e("Home","Connected To Internet");
             FetchMovieTask movieTask = new FetchMovieTask();
             movieTask.execute("");
         }else{
@@ -177,21 +177,58 @@ public class Home extends AppCompatActivity implements MovieAdapter.OnItemClickL
         if (R.id.search_menu_item == item.getItemId()) {
             applySearchAnimation();
         } else if (R.id.rated == item.getItemId()) {
+            showFavList=false;
             NetworkHandler.SORTBY = NetworkHandler.SORT_BY_HIGHEST_RATED;
             FetchMovieTask movieTask = new FetchMovieTask();
             movieTask.execute("");
         } else if (R.id.pop == item.getItemId()) {
+            showFavList=false;
             NetworkHandler.SORTBY = NetworkHandler.SORT_BY_POPULARITY;
             FetchMovieTask movieTask = new FetchMovieTask();
             movieTask.execute("");
         } else if (R.id.doSearch == item.getItemId()) {
+            showFavList=false;
             EditText editText = findViewById(R.id.searchLine);
             FetchMovieTask movieTask = new FetchMovieTask();
             movieTask.execute(editText.getText().toString());
         } else if (R.id.Favorite == item.getItemId()) {
-            startActivity(new Intent(Home.this, Favorite.class));
+            showFavList=true;
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    AsyncTask a=new AsyncTask() {
+                        @Override
+                        protected Object doInBackground(Object[] objects) {
+                            fetchFavMovies();
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Object o) {
+                            movieAdapter = new MovieAdapter(moviesArr, getApplicationContext(), listener);
+                            rv.setAdapter(movieAdapter);
+                        }
+                    };
+                    a.execute();
+
+                }
+            });
         }
         return true;
+    }
+    public void fetchFavMovies() {
+
+        LiveData<List<Movie>> movies = mDB.movieDao().loadAllTasks();
+        movies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                moviesArr = movies;
+                if(showFavList) {
+                    movieAdapter = new MovieAdapter(moviesArr, getApplicationContext(), listener);
+                    rv.setAdapter(movieAdapter);
+                }
+            }
+        });
     }
 
     public void setMainMovieInfo(Movie movie) {
@@ -257,7 +294,7 @@ public class Home extends AppCompatActivity implements MovieAdapter.OnItemClickL
                 movieAdapter = new MovieAdapter(movies, getApplicationContext(), listener);
                 moviesArr = movies;
                 rv.setAdapter(movieAdapter);
-                int randomIndex = (int) (Math.random() * movies.size()) - 1;
+                int randomIndex = (int) (Math.random() * movies.size());
                 setMainMovieInfo(movies.get(randomIndex));
             }
         }

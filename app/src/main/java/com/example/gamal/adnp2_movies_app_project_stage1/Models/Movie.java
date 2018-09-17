@@ -12,13 +12,10 @@ public class Movie {
     private String title;
     @Ignore
     private String releaseDate;
-    @Ignore
     private String moviePoster;
-    @Ignore
     private String voteAvg;
     @Ignore
     private String plotSynopsis;
-    @Ignore
     private String desc;
 
     public String getMovieID() {

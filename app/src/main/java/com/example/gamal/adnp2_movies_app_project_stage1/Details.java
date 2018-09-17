@@ -5,6 +5,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
 import android.databinding.DataBindingUtil;
@@ -20,6 +21,7 @@ import android.os.Build;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -70,7 +72,7 @@ public class Details extends AppCompatActivity {
     private String imageURL;
     private String voteAverage;
     private String desc;
-    private String TrailerURL;
+    private Pair<String,String>[] TrailerURLs;
     private ImageView Fav;
     private String movieID;
     private LinearLayout watchTrailer;
@@ -104,14 +106,8 @@ public class Details extends AppCompatActivity {
             movieID = intent.getStringExtra(MOVIE_ID);
             setTitle(title);
         }
-
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                addedToFav = fetchFavMovies(movieID);
-            }
-        });
-
+        populateInfo();
+        fetchFavMovies(movieID);
 
         Fav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +130,10 @@ public class Details extends AppCompatActivity {
                             Movie movie = new Movie();
                             movie.setMovieID(movieID);
                             movie.setTitle(title);
+                            movie.setDesc(desc);
+                            movie.setMoviePoster(imageURL);
+                            movie.setVoteAvg(voteAverage);
+
                             mDB.movieDao().insertTask(movie);
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -156,9 +156,7 @@ public class Details extends AppCompatActivity {
         watchTrailer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent watchTrailer = new Intent(Intent.ACTION_VIEW);
-                watchTrailer.setData(Uri.parse(TrailerURL));
-                startActivity(watchTrailer);
+                alertMovieTrailers();
             }
         });
 
@@ -170,7 +168,7 @@ public class Details extends AppCompatActivity {
                 URL url = networkHandler.buildURL_Trailer(movieID);
                 String jsonResponse = networkHandler.getResultFromURL(url);
                 Movies_JSONHandler jsonHandler = new Movies_JSONHandler(jsonResponse);
-                TrailerURL = jsonHandler.getMovieURL();
+                TrailerURLs = jsonHandler.getMovieURL();
 
                 NetworkHandler networkReviewHandler = new NetworkHandler();
                 URL reviewUrl = networkReviewHandler.buildURL_Reviews(movieID);
@@ -183,7 +181,6 @@ public class Details extends AppCompatActivity {
             @Override
             protected void onPostExecute(Object o) {
                 super.onPostExecute(o);
-                Log.e("xx", reviews.size() + "");
                 ReviewsAdapter adapter = new ReviewsAdapter(reviews);
                 lv.setAdapter(adapter);
             }
@@ -191,19 +188,47 @@ public class Details extends AppCompatActivity {
 
         getTrailerURLTask.execute();
 
-        populateInfo();
+
         initExplodeTrans();
     }
-
-    public boolean fetchFavMovies(String movieID) {
-        List<Movie> movies = mDB.movieDao().loadAllTasks();
-        for (int i = 0; i < movies.size(); i++) {
-            if (movies.get(i).getMovieID().equals(movieID)) {
-                Fav.setImageResource(R.drawable.ic_action_heart_red);
-                return true;
-            }
+    public void alertMovieTrailers() {
+        String items[]=new String[TrailerURLs.length];
+        final String urls[]=new String[TrailerURLs.length];
+        for (int i=0;i<items.length;i++){
+            items[i]=TrailerURLs[i].second;
+            urls[i]=TrailerURLs[i].first;
         }
-        return false;
+        AlertDialog.Builder builder = new AlertDialog.Builder(Details.this);
+        builder.setTitle("Available Trailers");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                Intent watchTrailer = new Intent(Intent.ACTION_VIEW);
+                watchTrailer.setData(Uri.parse(urls[item]));
+                startActivity(watchTrailer);
+                dialog.dismiss();
+
+            }
+        }).show();
+    }
+
+    public void fetchFavMovies(final String movieID) {
+        LiveData<List<Movie>> movies = mDB.movieDao().loadAllTasks();
+        movies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                for (int i = 0; i < movies.size(); i++) {
+                    if (movies.get(i).getMovieID().equals(movieID)) {
+                        Fav.setImageResource(R.drawable.ic_action_heart_red);
+                        addedToFav=true;
+                        break;
+                    }
+                    else {
+                        addedToFav=false;
+                    }
+                }
+
+            }
+        });
     }
 
     private void populateInfo() {

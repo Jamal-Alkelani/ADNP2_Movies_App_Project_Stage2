@@ -15,7 +15,10 @@ import java.util.List;
 @Dao
 public interface MovieDao {
     @Query("SELECT * FROM movies")
-    List<Movie> loadAllTasks();
+    LiveData<List<Movie>> loadAllTasks();
+
+    @Query("SELECT * FROM movies")
+    List<Movie> getAllTasks();
 
     @Insert
     void insertTask(Movie taskEntry);
@@ -27,5 +30,5 @@ public interface MovieDao {
     void deleteTask(Movie taskEntry);
 
     @Query("SELECT * FROM movies WHERE movieID= :id")
-    Movie loadTaskById(int id);
+    LiveData<Movie> loadTaskById(int id);
 }
