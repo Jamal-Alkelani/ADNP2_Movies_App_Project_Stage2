@@ -19,7 +19,7 @@ public class NetworkHandler {
     private final String QUERY_PARAM = "query";
     private final String API_KEY_PARAM = "api_key";
     //TODO insert your api_key over here
-    private final String KEY = "9c7a1417f53de49f373c60caa87b68e8";
+    private final String KEY = "";
     public final static String SORT_BY_POPULARITY = "popularity";
     public final static String SORT_BY_HIGHEST_RATED = "vote_average";
     public static String SORTBY = SORT_BY_POPULARITY;
