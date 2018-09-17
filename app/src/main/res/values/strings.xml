@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ADNP2_Movies_App_Project_Stage1</string>
+    <string name="Movie_Of_the_day_title">Movie OF The Day</string>
+    <string name="popular_movies_title">Popular Movies</string>
+    <string name="action_si_fi_comedy">Action SI-FI Comedy</string>
+    <string name="_126_min">126 Min</string>
+    <string name="watch_trailer">Watch Trailer</string>
+    <string name="favorite_movies">Favorite Movies</string>
+    <string name="noFavMoviesErrorMsg">Oops There\'s Nothing To Show</string>
+</resources>
